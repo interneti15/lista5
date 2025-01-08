@@ -9,19 +9,20 @@ public class SelectionHandler extends JPanel {
     private Zaznaczenie selection = new Zaznaczenie();
     private ArrayList<Zaznaczenie> history = new ArrayList<>();
     boolean selecting = false;
+    public ClosestLine closestLine = null;
 
     public SelectionHandler(MainApplicationWindow mainApplicationWindow) {
         ImageShower imageShower = mainApplicationWindow.getImageShower();
 
-        // Set this panel as non-opaque (transparent background)
+
         this.setOpaque(false);
 
-        this.setLayout(null); // Avoid conflicts with layout managers
-        this.setBounds(0, 0, imageShower.getWidth(), imageShower.getHeight()); // Set size to cover imageShower
+        this.setLayout(null);
+        this.setBounds(0, 0, imageShower.getWidth(), imageShower.getHeight());
 
         this.setVisible(true);
 
-        // Mouse listeners for selection area
+
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -41,7 +42,8 @@ public class SelectionHandler extends JPanel {
                     }
 
                     selecting = true;
-                    selection.changeLines(startX, startY);
+                    closestLine = selection.findClosest(startX, startY);
+                    selection.changeLines(startX, startY,closestLine);
                     repaint();
                 }
             }
@@ -58,7 +60,7 @@ public class SelectionHandler extends JPanel {
                         selecting = false;
                     }
                 } else if (selection.getMode() == MODE.line) {
-                    selection.changeLines(currentX, currentY);
+                    selection.changeLines(currentX, currentY,closestLine);
                     selecting = false;
                 }
 
@@ -66,7 +68,7 @@ public class SelectionHandler extends JPanel {
                     selection.revalidate();
                     selection = new Zaznaczenie(selection);
                     history.add(selection.copy());
-                    //history.add(selection);
+
                 }
                 selection.revalidate();
                 repaint();
@@ -84,7 +86,7 @@ public class SelectionHandler extends JPanel {
                     if (selection.getMode() == MODE.rectangle) {
                         selection.setEndCoords(currentX, currentY);
                     } else if (selection.getMode() == MODE.line) {
-                        selection.changeLines(currentX, currentY);
+                        selection.changeLines(currentX, currentY,closestLine);
                     }
                     repaint();
                 }
@@ -107,12 +109,12 @@ public class SelectionHandler extends JPanel {
                 return;
             }
 
-            graphics.setColor(Color.CYAN); // Set color for lines
-            graphics.drawLine(selection.getStartX(), 0, selection.getStartX(), getHeight()); // First vertical line (from top to bottom)
-            graphics.drawLine(selection.getEndX(), 0, selection.getEndX(), getHeight());   // Second vertical line
+            graphics.setColor(Color.CYAN);
+            graphics.drawLine(selection.getStartX(), 0, selection.getStartX(), getHeight());
+            graphics.drawLine(selection.getEndX(), 0, selection.getEndX(), getHeight());
 
-            // Draw horizontal lines
-            graphics.drawLine(0, selection.getStartY(), getWidth(), selection.getStartY()); // First horizontal line (from left to right)
+
+            graphics.drawLine(0, selection.getStartY(), getWidth(), selection.getStartY());
             graphics.drawLine(0, selection.getEndY(), getWidth(), selection.getEndY());
         }
     }
@@ -151,12 +153,12 @@ public class SelectionHandler extends JPanel {
         else {
             this.selection.setMode(MODE.rectangle);
         }
-        //selection.revalidate();
+
         if (Main.getjObjectsHandler().getApplicationMainJFrame().getImageShower().getImageObject() != null){
             this.selection = new Zaznaczenie(this.selection);
             this.history.add(selection.copy());
         }
-        //this.history.add(selection);
+
         this.repaint();
     }
 

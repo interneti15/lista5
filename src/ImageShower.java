@@ -17,7 +17,7 @@ public class ImageShower extends JPanel {
         this.setBounds(0, 0, 1, 1);
         this.setVisible(true);
         this.refreshImage();
-        //this.findScale();
+        
 
         this.addMouseMotionListener(new MouseMotionAdapter() {
             @Override
@@ -33,7 +33,7 @@ public class ImageShower extends JPanel {
             }
         });
 
-        //repaint();
+        
     }
 
     @Override
@@ -42,8 +42,8 @@ public class ImageShower extends JPanel {
         if (imageObject == null) {
             return;
         }
-        //this.findScale();
-        //this.setBounds(0, 0, imageObject.getWidth(null) * scaleFactor, imageObject.getHeight(null) * scaleFactor);
+        
+        
         graphics.drawImage(imageObject, 0, 0, getWidth(), getHeight(), this);
     }
 
@@ -64,14 +64,14 @@ public class ImageShower extends JPanel {
         int imageHeight = imageObject.getHeight(null);
 
         if (imageWidth == -1 || imageHeight == -1) {
-            return; // Avoid null pointer or invalid image dimensions
+            return; 
         }
 
         if (imageWidth < maxWidth && imageHeight < maxHeight) {
-            // Scale up
+            
             this.scaleFactor = Math.min(maxWidth / (double) imageWidth, maxHeight / (double) imageHeight);
         } else {
-            // Scale down
+            
             this.scaleFactor = Math.min((double) maxWidth / imageWidth, (double) maxHeight / imageHeight);
         }
     }

@@ -61,7 +61,7 @@ public class JObjectsHandler {
         return keyboardHandler;
     }
     public void enableGlobalPopupMenu(JFrame applicationFrame, JPopupMenu popupMenu) {
-        // Add a mouse listener to the entire JFrame
+        
         applicationFrame.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -78,7 +78,7 @@ public class JObjectsHandler {
             }
         });
 
-        // Add the same mouse listener to all components in the JFrame
+        
         addMouseListenerToAllComponents(applicationFrame, popupMenu);
     }
 

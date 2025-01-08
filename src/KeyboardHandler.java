@@ -65,22 +65,37 @@ public class KeyboardHandler implements KeyListener {
     }
 
     public void loadImage() {
-        // Create a file chooser
+        
         String imagePath;
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Select an Image");
 
-        // Filter for image files (optional)
-        fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Image Files", "jpg", "png", "gif", "bmp"));
+        
+        fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(
+                "Image Files", "jpg", "png", "gif", "bmp", "jpeg", "tiff", "webp", "svg"));
 
-        // Show the open file dialog
+        
         int result = fileChooser.showOpenDialog(null);
 
-        // If a file was selected
+        
         if (result == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
-            imagePath = selectedFile.getAbsolutePath(); // Store the selected path
-            System.out.println("Image selected: " + imagePath); // Display the selected path
+            imagePath = selectedFile.getAbsolutePath(); 
+
+            String fileExtension = getFileExtension(imagePath);
+            if (!fileExtension.equalsIgnoreCase("jpg") &&
+                    !fileExtension.equalsIgnoreCase("png") &&
+                    !fileExtension.equalsIgnoreCase("gif") &&
+                    !fileExtension.equalsIgnoreCase("bmp") &&
+                    !fileExtension.equalsIgnoreCase("jpeg") &&
+                    !fileExtension.equalsIgnoreCase("tiff") &&
+                    !fileExtension.equalsIgnoreCase("webp") &&
+                    !fileExtension.equalsIgnoreCase("svg")) {
+
+                JOptionPane.showMessageDialog(applicationMainJFrame, "Wrong file type selected!", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+
+            System.out.println("Image selected: " + imagePath); 
         } else {
             System.out.println("No file selected.");
             return;
@@ -105,28 +120,28 @@ public class KeyboardHandler implements KeyListener {
         int endY = (int) (selectionHandler.getSelection().getEndY() / imageShower.getScaleFactor());
         Image image = imageShower.getImageObject();
         
-        // Create a buffered image with the selected dimensions
+        
         int width = Math.abs(endX - startX);
         int height = Math.abs(endY - startY);
         BufferedImage croppedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         
-        // Draw the selected portion of the image onto the new buffered image
+        
         Graphics g = croppedImage.getGraphics();
         g.drawImage(image, 0, 0, width, height, startX, startY, endX, endY, null);
         g.dispose();
 
-        // Create a file chooser for saving the image
+        
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Save Cropped Image");
         fileChooser.setFileFilter(new FileNameExtensionFilter("PNG Images", "png"));
 
-        // Show the save dialog
+        
         int userSelection = fileChooser.showSaveDialog(applicationMainJFrame);
 
         if (userSelection == JFileChooser.APPROVE_OPTION) {
             File fileToSave = fileChooser.getSelectedFile();
             
-            // Ensure the file has a .png extension
+            
             if (!fileToSave.getName().toLowerCase().endsWith(".png")) {
                 fileToSave = new File(fileToSave.getAbsolutePath() + ".png");
             }
@@ -165,7 +180,7 @@ public class KeyboardHandler implements KeyListener {
         MODE currentMode = selectionHandler.getSelection().getMode();
         selectionHandler.setSelection(new Zaznaczenie());
         selectionHandler.getSelection().setMode(currentMode);
-        //selectionHandler.refreshSize();
+        
         selectionHandler.repaint();
     }
 
@@ -219,9 +234,9 @@ public class KeyboardHandler implements KeyListener {
         });
 
         Zaznaczenie currentSelection = applicationMainJFrame.getSelectionHandler().getSelection();
-        //System.out.println(currentSelection);
+        
         selectCurrent(selectionList, currentSelection);
-        //selectionList.setSelectedValue(currentSelection, true);
+        
 
         selectionList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
@@ -249,8 +264,8 @@ public class KeyboardHandler implements KeyListener {
                     applicationMainJFrame.getSelectionHandler().getHistory().forEach(listModel::addElement);
                     currentSelectionList.setModel(listModel);
                     resetSelection();
-                    currentSelectionList.revalidate(); // Optional: Revalidate to ensure UI is updated
-                    currentSelectionList.repaint(); // Repaint to force the UI to refresh
+                    currentSelectionList.revalidate(); 
+                    currentSelectionList.repaint(); 
 
 
                 }
@@ -258,16 +273,16 @@ public class KeyboardHandler implements KeyListener {
 
             @Override
             public void keyReleased(KeyEvent e) {
-                // You can handle key release events here if needed
+                
             }
 
             @Override
             public void keyTyped(KeyEvent e) {
-                // You can handle key typed events here if needed
+                
             }
         });
 
-        //this.popupOpen = true;
+        
         JFrame popupFrame = new JFrame("Selection History");
         this.popupMenu = popupFrame;
         this.currentSelectionList = selectionList;
@@ -287,6 +302,22 @@ public class KeyboardHandler implements KeyListener {
                 break;
             }
         }
+    }
+
+    public static String getFileExtension(String filePath) {
+        if (filePath == null || filePath.isEmpty()) {
+            return ""; 
+        }
+
+        int lastDotIndex = filePath.lastIndexOf('.');
+        int lastSeparatorIndex = Math.max(filePath.lastIndexOf('/'), filePath.lastIndexOf('\\'));
+
+        
+        if (lastDotIndex > lastSeparatorIndex && lastDotIndex != -1) {
+            return filePath.substring(lastDotIndex + 1);
+        }
+
+        return ""; 
     }
 
 }

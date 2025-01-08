@@ -60,7 +60,7 @@ public class Zaznaczenie {
     public void setEndCoords(int endX, int endY) {
         this.endX = endX;
         this.endY = endY;
-        // Update width and height
+        
         this.width = Math.abs(endX - startX);
         this.height = Math.abs(endY - startY);
     }
@@ -98,8 +98,16 @@ public class Zaznaczenie {
         endY = selectionHandler.getHeight() - distance;
     }
 
-    public void changeLines(int x, int y) {
+    public void changeLines(int x, int y, ClosestLine closestLine) {
+        switch (closestLine){
+            case top -> this.startY = y;
+            case bottom -> this.endY = y;
+            case left -> this.startX = x;
+            case right -> this.endX = x;
+        }
+    }
 
+    public ClosestLine findClosest(int x, int y) {
         int left = Math.abs(x - startX);
         int right = Math.abs(endX - x);
         int top = Math.abs(y - startY);
@@ -108,16 +116,14 @@ public class Zaznaczenie {
         int minimum = Math.min(left, Math.min(right, Math.min(top, bottom)));
 
         if (left == minimum) {
-            this.startX = x;
+            return ClosestLine.left;
         } else if (right == minimum) {
-            this.endX = x;
+            return ClosestLine.right;
         } else if (top == minimum) {
-            this.startY = y;
+            return  ClosestLine.top;
         } else {
-            this.endY = y;
+            return ClosestLine.bottom;
         }
-
-
     }
 
     public void revalidate() {

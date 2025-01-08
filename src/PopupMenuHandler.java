@@ -13,7 +13,7 @@ public class PopupMenuHandler {
     public JPopupMenu createPopupMenu() {
         JPopupMenu popupMenu = new JPopupMenu();
 
-        // Add "Load Image" menu item
+        
         JMenuItem loadImageItem = new JMenuItem("Load Image");
         loadImageItem.addActionListener(new ActionListener() {
             @Override
@@ -23,7 +23,7 @@ public class PopupMenuHandler {
         });
         popupMenu.add(loadImageItem);
 
-        // Add "Save Selected Fragment" menu item
+        
         JMenuItem saveFragmentItem = new JMenuItem("Save Selected Fragment");
         saveFragmentItem.addActionListener(new ActionListener() {
             @Override
@@ -33,7 +33,7 @@ public class PopupMenuHandler {
         });
         popupMenu.add(saveFragmentItem);
 
-        // Add "Crop with Square" menu item
+        
         JMenuItem cropSquareItem = new JMenuItem("Crop with Square");
         cropSquareItem.addActionListener(new ActionListener() {
             @Override
@@ -43,7 +43,7 @@ public class PopupMenuHandler {
         });
         popupMenu.add(cropSquareItem);
 
-        // Add "Crop with Lines" menu item
+        
         JMenuItem cropLinesItem = new JMenuItem("Crop with Lines");
         cropLinesItem.addActionListener(new ActionListener() {
             @Override
@@ -53,7 +53,7 @@ public class PopupMenuHandler {
         });
         popupMenu.add(cropLinesItem);
 
-        // Add "Reset Selection" menu item
+        
         JMenuItem resetSelectionItem = new JMenuItem("Reset Selection");
         resetSelectionItem.addActionListener(new ActionListener() {
             @Override
@@ -72,7 +72,7 @@ public class PopupMenuHandler {
         });
         popupMenu.add(historyItem);
 
-        // Add "Quit Program" menu item
+        
         JMenuItem quitProgramItem = new JMenuItem("Quit Program");
         quitProgramItem.addActionListener(new ActionListener() {
             @Override

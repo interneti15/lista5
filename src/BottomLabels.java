@@ -6,11 +6,11 @@ import java.awt.image.BufferedImage;
 
 public class BottomLabels extends JPanel {
     private static final int HEIGHT = 50;
-    private static final int LABEL_WIDTH = 100; // Width of each label
-    private static final int EMPTY_SPACES = 0;  // Number of empty spaces at the front
-    private JLabel xLabel;  // Label to display X coordinate
-    private JLabel yLabel;  // Label to display Y coordinate
-    private JLabel colorLabel; // Color
+    private static final int LABEL_WIDTH = 100; 
+    private static final int EMPTY_SPACES = 0;  
+    private JLabel xLabel;  
+    private JLabel yLabel;  
+    private JLabel colorLabel; 
 
     BottomLabels(MainApplicationWindow mainJFrame) {
         ImageShower imageShower = mainJFrame.getImageShower();
@@ -21,26 +21,26 @@ public class BottomLabels extends JPanel {
         }
         this.setBackground(MyColors.MyColor);
         this.setBounds(0, (mainJFrame.getHeight() - 50 - 25), mainJFrame.getWidth(), HEIGHT);
-        this.setLayout(null); // No layout manager for manual positioning
-        //this.setPreferredSize(new Dimension(mainJFrame.getWidth(), HEIGHT));
+        this.setLayout(null); 
+        
 
-        // Create labels for X and Y coordinates
+        
         xLabel = new JLabel("X: 0");
         yLabel = new JLabel("Y: 0");
         colorLabel = new JLabel("Color:");
 
 
-        // Set the font size and color for the labels
-        Font labelFont = new Font("Arial", Font.BOLD, 16); // Font size 16, bold
+        
+        Font labelFont = new Font("Arial", Font.BOLD, 16); 
         xLabel.setFont(labelFont);
         yLabel.setFont(labelFont);
         colorLabel.setFont(labelFont);
-        xLabel.setForeground(Color.WHITE);  // Set text color to white
+        xLabel.setForeground(Color.WHITE);  
         yLabel.setForeground(Color.WHITE);
-        colorLabel.setForeground(Color.WHITE);  // Set text color to white
-        // Set text color to white
+        colorLabel.setForeground(Color.WHITE);  
+        
 
-        // Position the labels
+        
         xLabel.setBounds(EMPTY_SPACES * LABEL_WIDTH, 10, LABEL_WIDTH, 30);
         yLabel.setBounds(LABEL_WIDTH + 10, 10, LABEL_WIDTH, 30);
         colorLabel.setBounds(LABEL_WIDTH + 10 + LABEL_WIDTH + 10, 10, LABEL_WIDTH*3, 30);
@@ -49,7 +49,7 @@ public class BottomLabels extends JPanel {
         this.add(yLabel);
         this.add(colorLabel);
 
-        // Mouse motion listener to update the labels with the mouse coordinates
+        
         mainJFrame.getSelectionHandler().addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseMoved(MouseEvent e) {
