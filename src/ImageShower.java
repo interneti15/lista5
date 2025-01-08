@@ -4,19 +4,21 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 
 public class ImageShower extends JPanel {
-    private String imagePath = "C:\\Users\\inter\\Downloads\\image.jpg";
+    private String imagePath = "";
     private Image imageObject;
     private int currentMouseX;
     private int currentMouseY;
     private double scaleFactor = 1;
+    private MainApplicationWindow mainJFrame;
 
     ImageShower(MainApplicationWindow mainJFrame) {
-
+        this.mainJFrame = mainJFrame;
         this.setBackground(Color.BLACK);
         this.setBounds(0, 0, 1, 1);
         this.setVisible(true);
-        this.findScale();
         this.refreshImage();
+        //this.findScale();
+
         this.addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseMoved(MouseEvent e) {
@@ -53,46 +55,33 @@ public class ImageShower extends JPanel {
         return currentMouseY;
     }
 
-    void findScale() {
-        double potentialScaleHeight = 1;
-        double potentialScaleWidth = 1;
+    private void findScale() {
 
-        if (Main.getjObjectsHandler() == null) {
-            return;
+        int maxWidth = this.mainJFrame.getWidth() - RightLabels.getWIDTH();
+        int maxHeight = this.mainJFrame.getHeight() - BottomLabels.getHEIGHT() - 25;
+
+        int imageWidth = imageObject.getWidth(null);
+        int imageHeight = imageObject.getHeight(null);
+
+        if (imageWidth == -1 || imageHeight == -1) {
+            return; // Avoid null pointer or invalid image dimensions
         }
 
-        int maxWidth = Main.getjObjectsHandler().getApplicationMainJFrame().getWidth() - RightLabels.getWIDTH();
-        int maxHeight = Main.getjObjectsHandler().getApplicationMainJFrame().getHeight() - BottomLabels.getHEIGHT();
-
-        if (imageObject.getHeight(null) < maxHeight && imageObject.getWidth(null) < maxWidth) { // Calculate scale based on height
-            while (imageObject.getHeight(null) * potentialScaleHeight < maxHeight) {
-                potentialScaleHeight++;
-            }
-
-            // Calculate scale based on width
-            while (imageObject.getWidth(null) * potentialScaleWidth < maxWidth) {
-                potentialScaleWidth++;
-            }
-
-            this.scaleFactor = Math.min(potentialScaleHeight - 1, potentialScaleWidth - 1);
+        if (imageWidth < maxWidth && imageHeight < maxHeight) {
+            // Scale up
+            this.scaleFactor = Math.min(maxWidth / (double) imageWidth, maxHeight / (double) imageHeight);
         } else {
-            double i = 2;
-            double j = 2;
-
-            while (imageObject.getWidth(null) * potentialScaleWidth > maxWidth){
-                potentialScaleWidth = 1/i;
-            }
-
-            while (imageObject.getHeight(null) * potentialScaleHeight > maxHeight){
-                potentialScaleHeight = 1/j;
-            }
-
-            this.scaleFactor = Math.min(potentialScaleHeight, potentialScaleWidth);
+            // Scale down
+            this.scaleFactor = Math.min((double) maxWidth / imageWidth, (double) maxHeight / imageHeight);
         }
     }
 
+
     private void refreshImage() {
         try {
+            if (imagePath == null || imagePath.isEmpty()) {
+                return;
+            }
             this.imageObject = new ImageIcon(imagePath).getImage();
             this.findScale();
             System.out.println("Setting bounds: x=0, y=0, width=" + (imageObject.getWidth(null) * scaleFactor) +
@@ -106,8 +95,17 @@ public class ImageShower extends JPanel {
 
     public void setImagePathAndRepaint(String path) {
         this.imagePath = path;
+        this.mainJFrame.getSelectionHandler().getHistory().clear();
         this.refreshImage();
         this.repaint();
-        Main.getjObjectsHandler().getApplicationMainJFrame().getSelectionHandler().refreshSize();
+        this.mainJFrame.getSelectionHandler().refreshSize();
+    }
+
+    public double getScaleFactor() {
+        return scaleFactor;
+    }
+
+    public Image getImageObject() {
+        return imageObject;
     }
 }

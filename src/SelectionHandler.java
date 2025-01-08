@@ -6,12 +6,10 @@ import java.awt.event.MouseMotionAdapter;
 import java.util.ArrayList;
 
 public class SelectionHandler extends JPanel {
-    //MODE mode = MODE.rectangle;
-    Zaznaczenie selection = new Zaznaczenie();
-    ArrayList<Zaznaczenie> history = new ArrayList<>();
+    private Zaznaczenie selection = new Zaznaczenie();
+    private ArrayList<Zaznaczenie> history = new ArrayList<>();
     boolean selecting = false;
 
-    // Ensure correct setup
     public SelectionHandler(MainApplicationWindow mainApplicationWindow) {
         ImageShower imageShower = mainApplicationWindow.getImageShower();
 
@@ -37,6 +35,11 @@ public class SelectionHandler extends JPanel {
                         selection.setStartCoords(startX, startY);
                     }
                 } else if (selection.getMode() == MODE.line) {
+
+                    if (!selection.isIni()){
+                        selection.firstWhenAtLines(Main.getjObjectsHandler().getApplicationMainJFrame().getSelectionHandler());
+                    }
+
                     selecting = true;
                     selection.changeLines(startX, startY);
                     repaint();
@@ -60,8 +63,12 @@ public class SelectionHandler extends JPanel {
                 }
 
                 if (selection.getWidth() > 0 && selection.getHeight() > 0) {
+                    selection.revalidate();
+                    selection = new Zaznaczenie(selection);
                     history.add(selection.copy());
+                    //history.add(selection);
                 }
+                selection.revalidate();
                 repaint();
             }
         });
@@ -88,9 +95,6 @@ public class SelectionHandler extends JPanel {
     @Override
     protected void paintComponent(Graphics graphics) {
         super.paintComponent(graphics);
-        if (Main.getjObjectsHandler() != null && Main.getjObjectsHandler().getApplicationMainJFrame() != null) {
-            //this.setBounds(0, 0, Main.getjObjectsHandler().getApplicationMainJFrame().getImageShower().getWidth(), Main.getjObjectsHandler().getApplicationMainJFrame().getImageShower().getHeight() + 1);
-        }
 
         if (selection.getMode() == MODE.rectangle) {
             if (selection.getWidth() > 0 && selection.getHeight() > 0) {
@@ -100,7 +104,7 @@ public class SelectionHandler extends JPanel {
         } else if (selection.getMode() == MODE.line) {
 
             if (!selection.isIni()){
-                selection.firstWhenAtLines(this);
+                return;
             }
 
             graphics.setColor(Color.CYAN); // Set color for lines
@@ -129,6 +133,35 @@ public class SelectionHandler extends JPanel {
         this.selection = new Zaznaczenie();
         this.selection.setMode(temp);
         this.repaint();
+    }
+
+    public Zaznaczenie getSelection() {
+        return selection;
+    }
+
+    public void setSelection(Zaznaczenie selection) {
+        this.selection = selection;
+    }
+
+    public void switchSelectionMode(){
+
+        if (this.selection.getMode() == MODE.rectangle){
+            this.selection.setMode(MODE.line);
+        }
+        else {
+            this.selection.setMode(MODE.rectangle);
+        }
+        //selection.revalidate();
+        if (Main.getjObjectsHandler().getApplicationMainJFrame().getImageShower().getImageObject() != null){
+            this.selection = new Zaznaczenie(this.selection);
+            this.history.add(selection.copy());
+        }
+        //this.history.add(selection);
+        this.repaint();
+    }
+
+    public ArrayList<Zaznaczenie> getHistory() {
+        return history;
     }
 }
 

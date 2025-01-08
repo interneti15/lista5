@@ -13,7 +13,7 @@ public class RightLabels extends JPanel {
     }
 
     RightLabels(MainApplicationWindow mainJFrame) {
-        this.setBackground(Color.BLUE);
+        this.setBackground(MyColors.MyColor);
         this.setBounds(mainJFrame.getWidth() - WIDTH, 0, WIDTH, mainJFrame.getHeight());
         this.setLayout(null); // No layout manager for manual positioning
 
@@ -23,7 +23,8 @@ public class RightLabels extends JPanel {
         addLabel("  K - kadrowanie za pomocą kwadratu", EMPTY_SPACES * LABEL_HEIGHT + spaceBetweenLabels * 3);
         addLabel("  L - kadrowanie za pomocą czterech linii", EMPTY_SPACES * LABEL_HEIGHT + spaceBetweenLabels * 4);
         addLabel("  C - powrót do obrazka bez zaznaczenia", EMPTY_SPACES * LABEL_HEIGHT + spaceBetweenLabels * 5);
-        addLabel("  Q - wyjście z programu", EMPTY_SPACES * LABEL_HEIGHT + spaceBetweenLabels * 6);
+        addLabel("  H - historia zaznaczeń", EMPTY_SPACES * LABEL_HEIGHT + spaceBetweenLabels * 6);
+        addLabel("  Q - wyjście z programu", EMPTY_SPACES * LABEL_HEIGHT + spaceBetweenLabels * 7);
 
     }
 

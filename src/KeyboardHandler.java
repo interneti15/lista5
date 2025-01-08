@@ -1,7 +1,13 @@
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 
 public class KeyboardHandler implements KeyListener {
 
@@ -9,6 +15,10 @@ public class KeyboardHandler implements KeyListener {
     public KeyboardHandler(MainApplicationWindow applicationMainJFrame) {
         this.applicationMainJFrame = applicationMainJFrame;
     }
+
+    private boolean popupOpen = false;
+    private JFrame popupMenu = null;
+    private JList<Zaznaczenie> currentSelectionList = null;
 
     @Override
     public void keyPressed(KeyEvent e) {
@@ -37,6 +47,10 @@ public class KeyboardHandler implements KeyListener {
                 quitProgram();
                 break;
 
+            case KeyEvent.VK_H:
+                handleHistory();
+                break;
+
             default:
                 break;
         }
@@ -50,7 +64,7 @@ public class KeyboardHandler implements KeyListener {
     public void keyTyped(KeyEvent e) {
     }
 
-    private void loadImage() {
+    public void loadImage() {
         // Create a file chooser
         String imagePath;
         JFileChooser fileChooser = new JFileChooser();
@@ -76,20 +90,203 @@ public class KeyboardHandler implements KeyListener {
 
     }
 
-    private void saveSelectedFragment() {
+    public void saveSelectedFragment() {
+        SelectionHandler selectionHandler = applicationMainJFrame.getSelectionHandler();
+        ImageShower imageShower = applicationMainJFrame.getImageShower();
+
+        if (!selectionHandler.getSelection().isIni()) {
+            JOptionPane.showMessageDialog(applicationMainJFrame, "No selection to save.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        int startX = (int) (selectionHandler.getSelection().getStartX() / imageShower.getScaleFactor());
+        int startY = (int) (selectionHandler.getSelection().getStartY() / imageShower.getScaleFactor());
+        int endX = (int) (selectionHandler.getSelection().getEndX() / imageShower.getScaleFactor());
+        int endY = (int) (selectionHandler.getSelection().getEndY() / imageShower.getScaleFactor());
+        Image image = imageShower.getImageObject();
+        
+        // Create a buffered image with the selected dimensions
+        int width = Math.abs(endX - startX);
+        int height = Math.abs(endY - startY);
+        BufferedImage croppedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        
+        // Draw the selected portion of the image onto the new buffered image
+        Graphics g = croppedImage.getGraphics();
+        g.drawImage(image, 0, 0, width, height, startX, startY, endX, endY, null);
+        g.dispose();
+
+        // Create a file chooser for saving the image
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Save Cropped Image");
+        fileChooser.setFileFilter(new FileNameExtensionFilter("PNG Images", "png"));
+
+        // Show the save dialog
+        int userSelection = fileChooser.showSaveDialog(applicationMainJFrame);
+
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File fileToSave = fileChooser.getSelectedFile();
+            
+            // Ensure the file has a .png extension
+            if (!fileToSave.getName().toLowerCase().endsWith(".png")) {
+                fileToSave = new File(fileToSave.getAbsolutePath() + ".png");
+            }
+
+            try {
+                ImageIO.write(croppedImage, "png", fileToSave);
+                JOptionPane.showMessageDialog(applicationMainJFrame, "Image saved successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(applicationMainJFrame, "Error saving image: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
 
-    private void cropWithSquare() {
+    public void cropWithSquare() {
+        SelectionHandler selectionHandler = applicationMainJFrame.getSelectionHandler();
+
+        if (selectionHandler.getSelection().getMode() == MODE.rectangle){
+            return;
+        }
+
+        selectionHandler.switchSelectionMode();
     }
 
-    private void cropWithLines() {
+    public void cropWithLines() {
+        SelectionHandler selectionHandler = applicationMainJFrame.getSelectionHandler();
+
+        if (selectionHandler.getSelection().getMode() == MODE.line){
+            return;
+        }
+
+        selectionHandler.switchSelectionMode();
     }
 
-    private void resetSelection() {
+    public void resetSelection() {
+        SelectionHandler selectionHandler = applicationMainJFrame.getSelectionHandler();
+        MODE currentMode = selectionHandler.getSelection().getMode();
+        selectionHandler.setSelection(new Zaznaczenie());
+        selectionHandler.getSelection().setMode(currentMode);
+        //selectionHandler.refreshSize();
+        selectionHandler.repaint();
     }
 
-    private void quitProgram() {
+    public void quitProgram() {
+        SelectionHandler selectionHandler = applicationMainJFrame.getSelectionHandler();
+        if (selectionHandler.getSelection().isIni()) {
+            int result = JOptionPane.showConfirmDialog(
+                applicationMainJFrame,
+                "You have an active selection. Are you sure you want to quit?",
+                "Confirm Exit",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
+            );
+            
+            if (result != JOptionPane.YES_OPTION) {
+                return;
+            }
+        }
+        
         System.exit(0);
+    }
+
+    public void handleHistory() {
+        ArrayList<Zaznaczenie> history = applicationMainJFrame.getSelectionHandler().getHistory();
+
+        if (history.isEmpty()) {
+            JOptionPane.showMessageDialog(applicationMainJFrame, "No history available.", "Info", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        DefaultListModel<Zaznaczenie> listModel = new DefaultListModel<>();
+        history.forEach(listModel::addElement);
+
+        createPopupHandler(listModel);
+    }
+
+    private void createPopupHandler(DefaultListModel<Zaznaczenie> listModel) {
+        JList<Zaznaczenie> selectionList = new JList<>(listModel);
+        selectionList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        selectionList.setCellRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                if (value instanceof Zaznaczenie zaznaczenie) {
+                    value = String.format("StartX: %d, StartY: %d, Width: %d, Height: %d",
+                            zaznaczenie.getStartX(), zaznaczenie.getStartY(),
+                            zaznaczenie.getWidth(), zaznaczenie.getHeight());
+                }
+                return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            }
+        });
+
+        Zaznaczenie currentSelection = applicationMainJFrame.getSelectionHandler().getSelection();
+        //System.out.println(currentSelection);
+        selectCurrent(selectionList, currentSelection);
+        //selectionList.setSelectedValue(currentSelection, true);
+
+        selectionList.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                if (selectionList.getSelectedIndex() != -1) {
+                    Zaznaczenie selected = selectionList.getSelectedValue();
+                    applicationMainJFrame.getSelectionHandler().setSelection(selected.copy());
+                    applicationMainJFrame.getSelectionHandler().repaint();
+                }
+            }
+        });
+        selectionList.addKeyListener(new KeyListener() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_X) {
+                    int selectedIndex = currentSelectionList.getSelectedIndex();
+                    if (selectedIndex == -1){
+                        JOptionPane.showMessageDialog(applicationMainJFrame, "No selection available.", "Info", JOptionPane.INFORMATION_MESSAGE);
+                        return;
+                    }
+
+                    currentSelectionList.clearSelection();
+                    applicationMainJFrame.getSelectionHandler().getHistory().remove(selectedIndex);
+
+                    DefaultListModel<Zaznaczenie> listModel = new DefaultListModel<>();
+                    applicationMainJFrame.getSelectionHandler().getHistory().forEach(listModel::addElement);
+                    currentSelectionList.setModel(listModel);
+                    resetSelection();
+                    currentSelectionList.revalidate(); // Optional: Revalidate to ensure UI is updated
+                    currentSelectionList.repaint(); // Repaint to force the UI to refresh
+
+
+                }
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                // You can handle key release events here if needed
+            }
+
+            @Override
+            public void keyTyped(KeyEvent e) {
+                // You can handle key typed events here if needed
+            }
+        });
+
+        //this.popupOpen = true;
+        JFrame popupFrame = new JFrame("Selection History");
+        this.popupMenu = popupFrame;
+        this.currentSelectionList = selectionList;
+        popupFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        popupFrame.add(new JScrollPane(selectionList));
+        popupFrame.setSize(300, 200);
+        popupFrame.setVisible(true);
+    }
+
+    void selectCurrent(JList<Zaznaczenie> selectionList, Zaznaczenie currentSelection) {
+        int currentId = currentSelection.getId();
+        ListModel<Zaznaczenie> model = selectionList.getModel();
+
+        for (int i = 0; i < model.getSize(); i++) {
+            if (model.getElementAt(i).getId() == currentId) {
+                selectionList.setSelectedIndex(i);
+                break;
+            }
+        }
     }
 
 }

@@ -6,8 +6,13 @@ public class Zaznaczenie {
     private int endX = 0;
     private int endY = 0;
     private boolean ini = false;
+    private static int instance = 0;
+    private int id = 0;
     private MODE mode = MODE.rectangle;
-
+    Zaznaczenie(){
+        id = instance;
+        instance++;
+    }
     public boolean isIni() {
         return ini;
     }
@@ -52,7 +57,6 @@ public class Zaznaczenie {
         return endY;
     }
 
-    // New method to set endX and endY, while updating startX, startY, width, and height
     public void setEndCoords(int endX, int endY) {
         this.endX = endX;
         this.endY = endY;
@@ -61,12 +65,28 @@ public class Zaznaczenie {
         this.height = Math.abs(endY - startY);
     }
 
-    // Copy method
     public Zaznaczenie copy() {
         Zaznaczenie copied = new Zaznaczenie();
         copied.setStartCoords(this.startX, this.startY);
         copied.setEndCoords(this.endX, this.endY);
+        copied.setMode(this.mode);
+        copied.width = this.width;
+        copied.height = this.height;
+        copied.ini = this.ini;
+        copied.id = this.id;
         return copied;
+    }
+
+    public Zaznaczenie(Zaznaczenie selection) {
+        id = instance;
+        instance++;
+
+        this.setStartCoords(selection.startX, selection.startY);
+        this.setEndCoords(selection.endX, selection.endY);
+        this.setMode(selection.mode);
+        this.width = selection.width;
+        this.height = selection.height;
+        this.ini = selection.ini;
     }
 
     public void firstWhenAtLines(SelectionHandler selectionHandler) {
@@ -96,5 +116,26 @@ public class Zaznaczenie {
         } else {
             this.endY = y;
         }
+
+
+    }
+
+    public void revalidate() {
+        System.out.println("startX=" + startX + ", endX=" + endX + ", startY" + startY + " endY" + endY);
+        if (endX < startX) {
+            int temp = endX;
+            endX = startX;
+            startX = temp;
+        }
+        if (endY < startY) {
+            int temp = endY;
+            endY = startY;
+            startY = temp;
+        }
+        System.out.println("startX=" + startX + ", endX=" + endX + ", startY" + startY + " endY" + endY);
+    }
+
+    public int getId() {
+        return id;
     }
 }

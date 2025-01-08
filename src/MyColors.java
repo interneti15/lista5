@@ -4,6 +4,7 @@ import java.util.Random;
 
 public class MyColors {
     public static final Color MainBackground = new Color(230, 230, 230);
+    public static final Color MyColor = new Color(40, 44, 52);
     private static final double MINIMAL_DISTANCE = 40;
     private static final int MAX_RETRIES = 100;
     private static final int MAX_COLOR_VALUE = 205;
