@@ -320,5 +320,19 @@ public class KeyboardHandler implements KeyListener {
         return ""; 
     }
 
+    public void refreshHistoryJlist (){
+
+        if (currentSelectionList == null) {
+            return;
+        }
+
+        DefaultListModel<Zaznaczenie> listModel = new DefaultListModel<>();
+        applicationMainJFrame.getSelectionHandler().getHistory().forEach(listModel::addElement);
+        currentSelectionList.setModel(listModel);
+        selectCurrent(currentSelectionList, applicationMainJFrame.getSelectionHandler().getSelection());
+        currentSelectionList.revalidate();
+        currentSelectionList.repaint();
+    }
+
 }
 

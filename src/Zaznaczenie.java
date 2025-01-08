@@ -98,16 +98,16 @@ public class Zaznaczenie {
         endY = selectionHandler.getHeight() - distance;
     }
 
-    public void changeLines(int x, int y, ClosestLine closestLine) {
+    public void changeLines(int x, int y, CLOSEST_LINE closestLine) {
         switch (closestLine){
-            case top -> this.startY = y;
-            case bottom -> this.endY = y;
-            case left -> this.startX = x;
-            case right -> this.endX = x;
+            case TOP -> this.startY = y;
+            case BOTTOM -> this.endY = y;
+            case LEFT -> this.startX = x;
+            case RIGHT -> this.endX = x;
         }
     }
 
-    public ClosestLine findClosest(int x, int y) {
+    public CLOSEST_LINE findClosest(int x, int y) {
         int left = Math.abs(x - startX);
         int right = Math.abs(endX - x);
         int top = Math.abs(y - startY);
@@ -116,13 +116,13 @@ public class Zaznaczenie {
         int minimum = Math.min(left, Math.min(right, Math.min(top, bottom)));
 
         if (left == minimum) {
-            return ClosestLine.left;
+            return CLOSEST_LINE.LEFT;
         } else if (right == minimum) {
-            return ClosestLine.right;
+            return CLOSEST_LINE.RIGHT;
         } else if (top == minimum) {
-            return  ClosestLine.top;
+            return  CLOSEST_LINE.TOP;
         } else {
-            return ClosestLine.bottom;
+            return CLOSEST_LINE.BOTTOM;
         }
     }
 

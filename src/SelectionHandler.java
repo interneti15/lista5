@@ -9,19 +9,15 @@ public class SelectionHandler extends JPanel {
     private Zaznaczenie selection = new Zaznaczenie();
     private ArrayList<Zaznaczenie> history = new ArrayList<>();
     boolean selecting = false;
-    public ClosestLine closestLine = null;
+    public CLOSEST_LINE closestLine = null;
 
     public SelectionHandler(MainApplicationWindow mainApplicationWindow) {
         ImageShower imageShower = mainApplicationWindow.getImageShower();
 
-
         this.setOpaque(false);
-
         this.setLayout(null);
         this.setBounds(0, 0, imageShower.getWidth(), imageShower.getHeight());
-
         this.setVisible(true);
-
 
         this.addMouseListener(new MouseAdapter() {
             @Override
@@ -68,6 +64,7 @@ public class SelectionHandler extends JPanel {
                     selection.revalidate();
                     selection = new Zaznaczenie(selection);
                     history.add(selection.copy());
+                    Main.getjObjectsHandler().getKeyboardHandler().refreshHistoryJlist();
 
                 }
                 selection.revalidate();
@@ -157,6 +154,7 @@ public class SelectionHandler extends JPanel {
         if (Main.getjObjectsHandler().getApplicationMainJFrame().getImageShower().getImageObject() != null){
             this.selection = new Zaznaczenie(this.selection);
             this.history.add(selection.copy());
+            Main.getjObjectsHandler().getKeyboardHandler().refreshHistoryJlist();
         }
 
         this.repaint();
